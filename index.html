@@ -149,7 +149,8 @@
             }
 
             .item-icon {
-                font-size: 28px;
+                width: 50px;
+                height: 50px;
             }
 
             .item-name {
@@ -187,7 +188,8 @@
             }
 
             .item-icon {
-                font-size: 24px;
+                width: 40px;
+                height: 40px;
                 margin-bottom: 6px;
             }
 
@@ -227,7 +229,8 @@
             }
 
             .item-icon {
-                font-size: 20px;
+                width: 32px;
+                height: 32px;
                 margin-bottom: 4px;
             }
 
@@ -270,7 +273,9 @@
         }
 
         .item-icon {
-            font-size: 32px;
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
             margin-bottom: 8px;
         }
 
@@ -385,45 +390,80 @@
 
         let cookieStartTime = 0;
         let cookieAnimationStarted = false;
+        let googleSheetData = {};
+
+        // Google Sheet URL - Using the published CSV export link
+        const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NKIRXMdq_GTWMeuK5TI1UZNIIhUA4-KOP5kg_e3lBTBp1KlkND-ONLW3nw-kqyj7Hy1wqDaHj43/pub?gid=0&single=true&output=csv';
+
+        // Fetch data from Google Sheet
+        async function fetchGoogleSheetData() {
+            try {
+                const response = await fetch(GOOGLE_SHEET_URL);
+                const csvText = await response.text();
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',').map(h => h.trim());
+                
+                // Parse CSV data into object
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',').map(v => v.trim());
+                    if (values[0]) { // Check if item name exists
+                        const itemName = values[0];
+                        googleSheetData[itemName] = {
+                            name: values[0],
+                            price: values[1] || 'N/A',
+                            description: values[2] || 'No description available',
+                            stock: values[3] || 'In stock',
+                            details: values[4] || ''
+                        };
+                    }
+                }
+                console.log('Google Sheet data loaded:', googleSheetData);
+            } catch (error) {
+                console.log('Could not load Google Sheet (normal if sheet is private). Using default data.');
+            }
+        }
+
+        // Fetch Google Sheet data on page load
+        fetchGoogleSheetData();
 
         // Create shopping items grid
         const items = [
-            { icon: '⛏️', name: 'Diamond Pickaxe', price: '💰 500' },
-            { icon: '🗡️', name: 'Sword', price: '💰 200' },
-            { icon: '🛡️', name: 'Shield', price: '💰 300' },
-            { icon: '📚', name: 'Bookshelf', price: '💰 150' },
-            { icon: '🪵', name: 'Wood Plank', price: '💰 10' },
-            { icon: '🧱', name: 'Brick', price: '💰 25' },
-            { icon: '💎', name: 'Diamond', price: '💰 1000' },
-            { icon: '🔴', name: 'Red Stone', price: '💰 50' },
-            { icon: '👁️', name: 'Ender Pearl', price: '💰 400' },
-            { icon: '🍎', name: 'Golden Apple', price: '💰 800' },
-            { icon: '🌾', name: 'Wheat', price: '💰 5' },
-            { icon: '🪨', name: 'Stone Block', price: '💰 20' },
-            { icon: '🌊', name: 'Water Bucket', price: '💰 80' },
-            { icon: '🔥', name: 'Lava Bucket', price: '💰 120' },
-            { icon: '🌙', name: 'Moon Stone', price: '💰 350' },
-            { icon: '⭐', name: 'Star Shard', price: '💰 600' },
-            { icon: '🎃', name: 'Pumpkin', price: '💰 40' },
-            { icon: '🍄', name: 'Mushroom', price: '💰 35' },
-            { icon: '🌳', name: 'Oak Tree', price: '💰 100' },
-            { icon: '🧪', name: 'Potion', price: '💰 250' },
-            { icon: '🎯', name: 'Arrow', price: '💰 15' },
-            { icon: '🧤', name: 'Gloves', price: '💰 180' },
-            { icon: '👢', name: 'Boots', price: '💰 220' },
-            { icon: '🎒', name: 'Backpack', price: '💰 300' },
-            { icon: '💐', name: 'Flower', price: '💰 25' },
-            { icon: '🍞', name: 'Bread', price: '💰 30' },
-            { icon: '🥔', name: 'Potato', price: '💰 12' },
-            { icon: '🐛', name: 'Spider Eye', price: '💰 70' },
-            { icon: '⚡', name: 'Lightning Rod', price: '💰 280' },
-            { icon: '🧲', name: 'Magnet', price: '💰 320' },
-            { icon: '🎨', name: 'Dye Set', price: '💰 90' },
-            { icon: '🔔', name: 'Bell', price: '💰 120' },
-            { icon: '🏺', name: 'Ancient Pot', price: '💰 450' },
-            { icon: '🎪', name: 'Banner', price: '💰 60' },
-            { icon: '🛏️', name: 'Bed', price: '💰 140' },
-            { icon: '🔐', name: 'Lock', price: '💰 110' }
+            { image: 'https://minecraft.wiki/images/Diamond_Pickaxe.png', name: 'Diamond Pickaxe', price: '💰 500' },
+            { image: 'https://minecraft.wiki/images/Diamond_Sword.png', name: 'Sword', price: '💰 200' },
+            { image: 'https://minecraft.wiki/images/Shield.png', name: 'Shield', price: '💰 300' },
+            { image: 'https://minecraft.wiki/images/Bookshelf.png', name: 'Bookshelf', price: '💰 150' },
+            { image: 'https://minecraft.wiki/images/Oak_Planks.png', name: 'Wood Plank', price: '💰 10' },
+            { image: 'https://minecraft.wiki/images/Bricks.png', name: 'Brick', price: '💰 25' },
+            { image: 'https://minecraft.wiki/images/Diamond.png', name: 'Diamond', price: '💰 1000' },
+            { image: 'https://minecraft.wiki/images/Redstone.png', name: 'Red Stone', price: '💰 50' },
+            { image: 'https://minecraft.wiki/images/Ender_Pearl.png', name: 'Ender Pearl', price: '💰 400' },
+            { image: 'https://minecraft.wiki/images/Golden_Apple.png', name: 'Golden Apple', price: '💰 800' },
+            { image: 'https://minecraft.wiki/images/Wheat.png', name: 'Wheat', price: '💰 5' },
+            { image: 'https://minecraft.wiki/images/Stone.png', name: 'Stone Block', price: '💰 20' },
+            { image: 'https://minecraft.wiki/images/Water_Bucket.png', name: 'Water Bucket', price: '💰 80' },
+            { image: 'https://minecraft.wiki/images/Lava_Bucket.png', name: 'Lava Bucket', price: '💰 120' },
+            { image: 'https://minecraft.wiki/images/Block_of_Amethyst.png', name: 'Moon Stone', price: '💰 350' },
+            { image: 'https://minecraft.wiki/images/Glowstone.png', name: 'Star Shard', price: '💰 600' },
+            { image: 'https://minecraft.wiki/images/Pumpkin.png', name: 'Pumpkin', price: '💰 40' },
+            { image: 'https://minecraft.wiki/images/Red_Mushroom.png', name: 'Mushroom', price: '💰 35' },
+            { image: 'https://minecraft.wiki/images/Oak_Log.png', name: 'Oak Tree', price: '💰 100' },
+            { image: 'https://minecraft.wiki/images/Awkward_Potion.png', name: 'Potion', price: '💰 250' },
+            { image: 'https://minecraft.wiki/images/Arrow.png', name: 'Arrow', price: '💰 15' },
+            { image: 'https://minecraft.wiki/images/Leather_Helmet.png', name: 'Gloves', price: '💰 180' },
+            { image: 'https://minecraft.wiki/images/Diamond_Boots.png', name: 'Boots', price: '💰 220' },
+            { image: 'https://minecraft.wiki/images/Chest.png', name: 'Backpack', price: '💰 300' },
+            { image: 'https://minecraft.wiki/images/Poppy.png', name: 'Flower', price: '💰 25' },
+            { image: 'https://minecraft.wiki/images/Bread.png', name: 'Bread', price: '💰 30' },
+            { image: 'https://minecraft.wiki/images/Potato.png', name: 'Potato', price: '💰 12' },
+            { image: 'https://minecraft.wiki/images/Spider_Eye.png', name: 'Spider Eye', price: '💰 70' },
+            { image: 'https://minecraft.wiki/images/Lightning_Rod.png', name: 'Lightning Rod', price: '💰 280' },
+            { image: 'https://minecraft.wiki/images/Block_of_Iron.png', name: 'Magnet', price: '💰 320' },
+            { image: 'https://minecraft.wiki/images/Cocoa_Beans.png', name: 'Dye Set', price: '💰 90' },
+            { image: 'https://minecraft.wiki/images/Bell.png', name: 'Bell', price: '💰 120' },
+            { image: 'https://minecraft.wiki/images/Decorated_Pot.png', name: 'Ancient Pot', price: '💰 450' },
+            { image: 'https://minecraft.wiki/images/Banner.png', name: 'Banner', price: '💰 60' },
+            { image: 'https://minecraft.wiki/images/Bed.png', name: 'Bed', price: '💰 140' },
+            { image: 'https://minecraft.wiki/images/Oak_Door.png', name: 'Lock', price: '💰 110' }
         ];
 
         // Populate items grid
@@ -432,17 +472,25 @@
             const itemBlock = document.createElement('div');
             itemBlock.className = 'item-block';
             itemBlock.innerHTML = `
-                <div class="item-icon">${item.icon}</div>
+                <img src="${item.image}" alt="${item.name}" class="item-icon" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect fill=%22%238B4513%22 width=%2264%22 height=%2264%22/><text x=%2232%22 y=%2240%22 font-size=%2224%22 text-anchor=%22middle%22 fill=%22white%22>?</text></svg>'" />
                 <div class="item-name">${item.name}</div>
                 <div class="item-price">${item.price}</div>
             `;
             itemBlock.addEventListener('click', () => {
-                alert(`Added ${item.name} to cart!`);
+                // Get data from Google Sheet or use default
+                const sheetData = googleSheetData[item.name];
+                
+                if (sheetData) {
+                    // Display data from Google Sheet
+                    const details = `${sheetData.name}\n\nPrice: ${sheetData.price}\nStock: ${sheetData.stock}\n\nDescription:\n${sheetData.description}${sheetData.details ? '\n\n' + sheetData.details : ''}\n\nAdded to cart!`;
+                    alert(details);
+                } else {
+                    // Fallback to default alert
+                    alert(`Added ${item.name} to cart!`);
+                }
             });
             itemsGrid.appendChild(itemBlock);
         });
-
-        // Animation loop
         function animate() {
             requestAnimationFrame(animate);
 
