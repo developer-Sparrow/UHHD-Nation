@@ -38,6 +38,7 @@
             font-family: 'Minecraft', Arial, sans-serif;
             letter-spacing: 3px;
             z-index: 10;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
         }
 
         @keyframes fadeIn {
@@ -52,38 +53,39 @@
         }
 
         #itemsContainer {
-            position: fixed;
-            bottom: 0;
+            position: absolute;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
             max-width: 1400px;
-            height: 500px;
             opacity: 0;
             animation: slideUp 1s ease-out forwards;
             animation-delay: 4s;
             z-index: 5;
+            height: calc(100vh - 100px);
             overflow-y: scroll;
             overflow-x: hidden;
             scroll-behavior: smooth;
+            transition: transform 0.3s ease-out;
         }
 
         #itemsContainer::-webkit-scrollbar {
-            width: 10px;
+            width: 8px;
         }
 
         #itemsContainer::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
         }
 
         #itemsContainer::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 215, 0, 0.5);
             border-radius: 10px;
         }
 
         #itemsContainer::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 215, 0, 0.8);
         }
 
         @keyframes slideUp {
@@ -105,7 +107,6 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
             backdrop-filter: blur(10px);
-            width: 100%;
         }
 
         .item-block {
@@ -290,9 +291,6 @@
 
         // Populate items grid
         const itemsGrid = document.getElementById('itemsGrid');
-        const itemsContainer = document.getElementById('itemsContainer');
-        const titleElement = document.getElementById('title');
-        
         items.forEach(item => {
             const itemBlock = document.createElement('div');
             itemBlock.className = 'item-block';
@@ -306,45 +304,6 @@
             });
             itemsGrid.appendChild(itemBlock);
         });
-
-        // Handle scroll and update title opacity
-        let touchStartY = 0;
-        let touchEndY = 0;
-
-        function updateTitleOpacity() {
-            const scrollTop = itemsContainer.scrollTop;
-            const maxScroll = itemsContainer.scrollHeight - itemsContainer.clientHeight;
-            const scrollRatio = Math.min(scrollTop / 200, 1); // Fade out over 200px of scroll
-            titleElement.style.opacity = Math.max(0, 1 - scrollRatio);
-        }
-
-        // Mouse wheel scroll
-        itemsContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            itemsContainer.scrollTop += e.deltaY;
-            updateTitleOpacity();
-        }, { passive: false });
-
-        // Touch swipe handling
-        itemsContainer.addEventListener('touchstart', (e) => {
-            touchStartY = e.changedTouches[0].screenY;
-        });
-
-        itemsContainer.addEventListener('touchend', (e) => {
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
-        });
-
-        function handleSwipe() {
-            const difference = touchStartY - touchEndY;
-            if (Math.abs(difference) > 30) {
-                itemsContainer.scrollTop += difference;
-                updateTitleOpacity();
-            }
-        }
-
-        // Also update on scroll event (for regular scrollbar clicks)
-        itemsContainer.addEventListener('scroll', updateTitleOpacity);
 
         // Animation loop
         function animate() {
@@ -385,6 +344,50 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Scroll handling variables
+        const titleElement = document.getElementById('title');
+        const itemsContainer = document.getElementById('itemsContainer');
+        let scrollOffset = 0;
+        let touchStartY = 0;
+
+        // Mouse wheel scroll
+        window.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            scrollOffset += e.deltaY * 0.5;
+            updateScrollPosition();
+        }, { passive: false });
+
+        // Touch swipe handling
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touchEndY = e.touches[0].clientY;
+            const touchDiff = touchStartY - touchEndY;
+            scrollOffset += touchDiff * 0.5;
+            touchStartY = touchEndY;
+            updateScrollPosition();
+        }, { passive: false });
+
+        // Update scroll position for both title and items
+        function updateScrollPosition() {
+            // Clamp scroll offset to reasonable range
+            const maxScroll = 400;
+            scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+
+            // Update title: move up and fade out
+            const titleOpacity = Math.max(0, 1 - (scrollOffset / maxScroll));
+            const titleTranslateY = (scrollOffset / maxScroll) * -150;
+            titleElement.style.transform = `translate(-50%, calc(-50% + ${titleTranslateY}px))`;
+            titleElement.style.opacity = titleOpacity;
+
+            // Update items container: move up
+            const itemsTranslateY = -scrollOffset;
+            itemsContainer.style.transform = `translateX(-50%) translateY(${itemsTranslateY}px)`;
+        }
     </script>
 
 </body>
