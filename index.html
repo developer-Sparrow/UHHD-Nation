@@ -22,7 +22,6 @@
             display: block;
             width: 100%;
             height: 100vh;
-            pointer-events: none;
         }
 
         #title {
@@ -39,7 +38,8 @@
             font-family: 'Minecraft', Arial, sans-serif;
             letter-spacing: 3px;
             z-index: 10;
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            padding: 20px;
+            text-align: center;
         }
 
         @keyframes fadeInAndOut {
@@ -73,7 +73,8 @@
             animation-delay: 5s;
             z-index: 5;
             height: calc(100vh - 100px);
-            transition: transform 0.3s ease-out;
+            overflow-y: scroll;
+            overflow-x: hidden;
         }
 
         #itemsContainer::-webkit-scrollbar {
@@ -115,6 +116,135 @@
             backdrop-filter: blur(10px);
         }
 
+        @media (max-width: 1400px) {
+            .items-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                padding: 15px;
+            }
+
+            #title {
+                font-size: 56px;
+                letter-spacing: 2px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            #itemsContainer {
+                width: 95%;
+                max-width: 1200px;
+                bottom: 15px;
+                height: calc(100vh - 80px);
+            }
+
+            .items-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 12px;
+            }
+
+            #title {
+                font-size: 48px;
+                letter-spacing: 2px;
+            }
+
+            .item-icon {
+                font-size: 28px;
+            }
+
+            .item-name {
+                font-size: 11px;
+            }
+
+            .item-price {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #itemsContainer {
+                width: 95%;
+                max-width: 100%;
+                bottom: 10px;
+                height: calc(100vh - 70px);
+            }
+
+            .items-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                padding: 10px;
+            }
+
+            #title {
+                font-size: 40px;
+                letter-spacing: 1.5px;
+                text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+            }
+
+            .item-block {
+                border: 2px solid #654321;
+                padding: 8px;
+            }
+
+            .item-icon {
+                font-size: 24px;
+                margin-bottom: 6px;
+            }
+
+            .item-name {
+                font-size: 10px;
+            }
+
+            .item-price {
+                font-size: 8px;
+                margin-top: 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #itemsContainer {
+                width: 96%;
+                max-width: 100%;
+                bottom: 8px;
+                height: calc(100vh - 60px);
+            }
+
+            .items-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+                padding: 8px;
+            }
+
+            #title {
+                font-size: 32px;
+                letter-spacing: 1px;
+                text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+            }
+
+            .item-block {
+                border: 2px solid #654321;
+                padding: 6px;
+            }
+
+            .item-icon {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .item-name {
+                font-size: 9px;
+            }
+
+            .item-price {
+                font-size: 7px;
+                margin-top: 2px;
+            }
+
+            #itemsContainer::-webkit-scrollbar {
+                width: 6px;
+            }
+        }
+
         .item-block {
             aspect-ratio: 1;
             background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
@@ -131,6 +261,7 @@
             font-weight: bold;
             text-align: center;
             padding: 10px;
+            min-height: 60px;
         }
 
         .item-block:hover {
@@ -350,52 +481,6 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-
-        // Scroll handling variables
-        const titleElement = document.getElementById('title');
-        const itemsContainer = document.getElementById('itemsContainer');
-        let scrollOffset = 0;
-        let touchStartY = 0;
-
-        // Mouse wheel scroll
-        document.addEventListener('wheel', (e) => {
-            if (e.target.closest('#itemsContainer') || itemsContainer.style.opacity === '1') {
-                e.preventDefault();
-                scrollOffset += e.deltaY * 0.5;
-                updateScrollPosition();
-            }
-        }, { passive: false });
-
-        // Touch swipe handling
-        window.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: false });
-
-        window.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touchEndY = e.touches[0].clientY;
-            const touchDiff = touchStartY - touchEndY;
-            scrollOffset += touchDiff * 0.5;
-            touchStartY = touchEndY;
-            updateScrollPosition();
-        }, { passive: false });
-
-        // Update scroll position for both title and items
-        function updateScrollPosition() {
-            // Clamp scroll offset to reasonable range
-            const maxScroll = 400;
-            scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
-
-            // Update title: move up and fade out
-            const titleOpacity = Math.max(0, 1 - (scrollOffset / maxScroll));
-            const titleTranslateY = (scrollOffset / maxScroll) * -150;
-            titleElement.style.transform = `translate(-50%, calc(-50% + ${titleTranslateY}px))`;
-            titleElement.style.opacity = titleOpacity;
-
-            // Update items container: move up
-            const itemsTranslateY = -scrollOffset;
-            itemsContainer.style.transform = `translateX(-50%) translateY(${itemsTranslateY}px)`;
-        }
     </script>
 
 </body>
