@@ -34,20 +34,28 @@
             color: #fff;
             text-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
             opacity: 0;
-            animation: fadeIn 3s ease-in-out forwards;
+            animation: fadeInAndOut 5s ease-in-out forwards;
             font-family: 'Minecraft', Arial, sans-serif;
             letter-spacing: 3px;
             z-index: 10;
             transition: transform 0.3s ease-out, opacity 0.3s ease-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes fadeInAndOut {
             0% {
                 opacity: 0;
                 transform: translate(-50%, -50%) scale(0.8);
             }
-            100% {
+            20% {
                 opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
                 transform: translate(-50%, -50%) scale(1);
             }
         }
@@ -61,12 +69,9 @@
             max-width: 1400px;
             opacity: 0;
             animation: slideUp 1s ease-out forwards;
-            animation-delay: 4s;
+            animation-delay: 5s;
             z-index: 5;
             height: calc(100vh - 100px);
-            overflow-y: scroll;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
             transition: transform 0.3s ease-out;
         }
 
@@ -243,7 +248,7 @@
         const cookie = new THREE.Mesh(cookieGeometry, cookieMaterial);
         cookie.position.x = 15;
         cookie.position.y = 0;
-        cookie.rotation.z = Math.PI / 4;
+        cookie.rotation.y = 0;
         scene.add(cookie);
 
         let cookieStartTime = 0;
@@ -325,8 +330,8 @@
                 if (elapsed < duration) {
                     // Move cookie from right to left
                     cookie.position.x = 15 - (elapsed / duration) * 30;
-                    // Rotate cookie for rolling effect
-                    cookie.rotation.z += 0.1;
+                    // Rotate cookie for rolling effect (rolling like a wheel)
+                    cookie.rotation.y += 0.1;
                 } else {
                     // Keep cookie off screen after animation
                     cookie.position.x = -15;
