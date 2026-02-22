@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Website</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 0; padding: 0; background: #f4f4f4; }
+        header { background: #333; color: #fff; padding: 1rem; text-align: center; }
+        main { padding: 2rem; max-width: 800px; margin: auto; background: #fff; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        footer { text-align: center; padding: 1rem; font-size: 0.8rem; color: #666; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to My Demo</h1>
+    </header>
+
+    <main>
+        <h2>About This Page</h2>
+        <p>This is a basic HTML5 template. It demonstrates structure, style, and logic in one file.</p>
+        
+        <ul>
+            <li><strong>HTML:</strong> The skeleton</li>
+            <li><strong>CSS:</strong> The skin</li>
+            <li><strong>JS:</strong> The muscles</li>
+        </ul>
+
+        <button onclick="greet()">Click Me</button>
+        <p id="message"></p>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Demo Project</p>
+    </footer>
+
+    <script>
+        function greet() {
+            document.getElementById('message').innerText = "Hello! Thanks for testing the button.";
+        }
+    </script>
+
+</body>
+</html>
