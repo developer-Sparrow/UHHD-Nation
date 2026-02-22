@@ -457,7 +457,7 @@
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             
-            <div class="modal-section">
+            <div class="modal-section" id="priceSection" style="display:none;">
                 <label class="modal-label">💰 Price</label>
                 <div class="modal-value" id="modalPrice">N/A</div>
             </div>
@@ -467,7 +467,7 @@
                 <div class="modal-value" id="modalStock">N/A</div>
             </div>
             
-            <div class="modal-section">
+            <div class="modal-section" id="descriptionSection" style="display:none;">
                 <label class="modal-label">📝 Description</label>
                 <div class="modal-value" id="modalDescription">No description available</div>
             </div>
@@ -476,8 +476,6 @@
                 <label class="modal-label">ℹ️ Details</label>
                 <div class="modal-value" id="modalDetails"></div>
             </div>
-            
-            <button class="modal-button" onclick="addToCart()">✓ Add to Cart</button>
         </div>
     </div>
     
@@ -671,14 +669,33 @@
                 // Get data from Google Sheet by item name
                 const sheetData = googleSheetData[item.name];
                 
+                // Only show modal if data exists in Google Sheet
                 if (sheetData && sheetData.name) {
                     // Populate modal with Google Sheet data
                     document.getElementById('modalItemName').textContent = sheetData.name;
-                    document.getElementById('modalPrice').textContent = sheetData.price;
-                    document.getElementById('modalStock').textContent = sheetData.stock;
-                    document.getElementById('modalDescription').textContent = sheetData.description;
                     
-                    // Show or hide details section based on whether there are details
+                    // Show price section if price exists and is not empty
+                    const priceSection = document.getElementById('priceSection');
+                    if (sheetData.price && sheetData.price.trim()) {
+                        document.getElementById('modalPrice').textContent = sheetData.price;
+                        priceSection.style.display = 'block';
+                    } else {
+                        priceSection.style.display = 'none';
+                    }
+                    
+                    // Always show stock
+                    document.getElementById('modalStock').textContent = sheetData.stock || 'N/A';
+                    
+                    // Show description section if description exists and is not empty
+                    const descriptionSection = document.getElementById('descriptionSection');
+                    if (sheetData.description && sheetData.description.trim()) {
+                        document.getElementById('modalDescription').textContent = sheetData.description;
+                        descriptionSection.style.display = 'block';
+                    } else {
+                        descriptionSection.style.display = 'none';
+                    }
+                    
+                    // Show details section if details exist and are not empty
                     const detailsSection = document.getElementById('detailsSection');
                     if (sheetData.details && sheetData.details.trim()) {
                         document.getElementById('modalDetails').textContent = sheetData.details;
@@ -688,14 +705,6 @@
                     }
                     
                     // Open modal
-                    openModal();
-                } else {
-                    // Fallback - show with item name only
-                    document.getElementById('modalItemName').textContent = item.name;
-                    document.getElementById('modalPrice').textContent = item.price;
-                    document.getElementById('modalStock').textContent = 'In stock';
-                    document.getElementById('modalDescription').textContent = 'Product details available in Google Sheet';
-                    document.getElementById('detailsSection').style.display = 'none';
                     openModal();
                 }
             });
@@ -709,13 +718,6 @@
 
         function closeModal() {
             document.getElementById('itemModal').style.display = 'none';
-        }
-
-        function addToCart() {
-            const itemName = document.getElementById('modalItemName').textContent;
-            closeModal();
-            // You can add custom callback here, e.g., send to backend
-            console.log(`Added ${itemName} to cart`);
         }
 
         // Close modal when clicking outside of it
