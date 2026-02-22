@@ -52,16 +52,38 @@
         }
 
         #itemsContainer {
-            position: absolute;
-            bottom: 20px;
+            position: fixed;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
             max-width: 1400px;
+            height: 500px;
             opacity: 0;
             animation: slideUp 1s ease-out forwards;
             animation-delay: 4s;
             z-index: 5;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        #itemsContainer::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #itemsContainer::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        #itemsContainer::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        #itemsContainer::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         @keyframes slideUp {
@@ -83,6 +105,7 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
             backdrop-filter: blur(10px);
+            width: 100%;
         }
 
         .item-block {
@@ -267,6 +290,9 @@
 
         // Populate items grid
         const itemsGrid = document.getElementById('itemsGrid');
+        const itemsContainer = document.getElementById('itemsContainer');
+        const titleElement = document.getElementById('title');
+        
         items.forEach(item => {
             const itemBlock = document.createElement('div');
             itemBlock.className = 'item-block';
@@ -280,6 +306,45 @@
             });
             itemsGrid.appendChild(itemBlock);
         });
+
+        // Handle scroll and update title opacity
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        function updateTitleOpacity() {
+            const scrollTop = itemsContainer.scrollTop;
+            const maxScroll = itemsContainer.scrollHeight - itemsContainer.clientHeight;
+            const scrollRatio = Math.min(scrollTop / 200, 1); // Fade out over 200px of scroll
+            titleElement.style.opacity = Math.max(0, 1 - scrollRatio);
+        }
+
+        // Mouse wheel scroll
+        itemsContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            itemsContainer.scrollTop += e.deltaY;
+            updateTitleOpacity();
+        }, { passive: false });
+
+        // Touch swipe handling
+        itemsContainer.addEventListener('touchstart', (e) => {
+            touchStartY = e.changedTouches[0].screenY;
+        });
+
+        itemsContainer.addEventListener('touchend', (e) => {
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const difference = touchStartY - touchEndY;
+            if (Math.abs(difference) > 30) {
+                itemsContainer.scrollTop += difference;
+                updateTitleOpacity();
+            }
+        }
+
+        // Also update on scroll event (for regular scrollbar clicks)
+        itemsContainer.addEventListener('scroll', updateTitleOpacity);
 
         // Animation loop
         function animate() {
